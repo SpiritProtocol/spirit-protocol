@@ -9,8 +9,8 @@ import { useAuth } from "../context/AuthContext";
 export function CatalogPage() {
   const auth = useAuth();
   const query = useQuery({
-    queryKey: ["artworks"],
-    queryFn: () => apiClient.get<ArtworkSummaryDto[]>("/artworks"),
+    queryKey: ["artworks", "store", auth.user?.id],
+    queryFn: () => apiClient.get<ArtworkSummaryDto[]>(`/artworks?excludeOwnerId=${auth.user!.id}`),
     enabled: auth.status === "authenticated",
   });
 

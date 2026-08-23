@@ -12,6 +12,7 @@ const listQuerySchema = z.object({
     .enum(["DRAFT", "PENDING_VERIFICATION", "VERIFIED", "REJECTED", "LISTED", "SOLD", "ARCHIVED"])
     .optional(),
   ownerId: z.string().uuid().optional(),
+  excludeOwnerId: z.string().uuid().optional(),
 });
 
 export async function artworksRoutes(fastify: FastifyInstance) {

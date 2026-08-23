@@ -10,6 +10,7 @@ import type { VaultService } from "../../services/vault/index.js";
 export interface ArtworkListFilters {
   status?: ArtworkStatus;
   ownerId?: string;
+  excludeOwnerId?: string;
 }
 
 export class ArtworksService {
@@ -87,6 +88,7 @@ export class ArtworksService {
       where: {
         ...(filters.status ? { status: filters.status } : {}),
         ...(filters.ownerId ? { currentOwnerId: filters.ownerId } : {}),
+        ...(filters.excludeOwnerId ? { currentOwnerId: { not: filters.excludeOwnerId } } : {}),
       },
       include: artworkInclude,
       orderBy: { createdAt: "desc" },
