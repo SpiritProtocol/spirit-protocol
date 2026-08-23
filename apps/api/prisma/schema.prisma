@@ -1,0 +1,273 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  COLLECTOR
+  ADMIN
+}
+
+enum ArtworkStatus {
+  DRAFT
+  PENDING_VERIFICATION
+  VERIFIED
+  REJECTED
+  LISTED
+  SOLD
+  ARCHIVED
+}
+
+enum VerificationStatus {
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum ProvenanceEventType {
+  CREATED
+  STATUS_CHANGED
+  VERIFICATION_STARTED
+  VERIFIED
+  VERIFICATION_REJECTED
+  VAULT_ACTIVATED
+  VAULT_COVERAGE_UPDATED
+  LISTED
+  LISTING_CANCELLED
+  OWNERSHIP_TRANSFERRED
+  SOLD
+  DEMO_RESET
+}
+
+enum ListingStatus {
+  ACTIVE
+  SOLD
+  CANCELLED
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum VaultStatus {
+  NOT_INITIALIZED
+  ACTIVE
+  LOCKED
+}
+
+enum VaultEventType {
+  ACTIVATED
+  COVERAGE_UPDATED
+  VALUE_UPDATED
+}
+
+enum DemoOperation {
+  SEED
+  RESET
+  CLEAR
+}
+
+model User {
+  id           String   @id @default(uuid())
+  telegramId   String?  @unique
+  username     String   @unique
+  displayName  String
+  avatarUrl    String?
+  role         UserRole @default(COLLECTOR)
+  passwordHash String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  ownedArtworks         Artwork[]           @relation("ArtworkOwner")
+  createdArtworks       Artwork[]           @relation("ArtworkCreator")
+  submittedVerifications VerificationRecord[] @relation("VerificationSubmitter")
+  reviewedVerifications  VerificationRecord[] @relation("VerificationReviewer")
+  listings              Listing[]           @relation("ListingSeller")
+  purchasesAsBuyer      Transaction[]       @relation("TransactionBuyer")
+  purchasesAsSeller     Transaction[]       @relation("TransactionSeller")
+  vaultEventsPerformed  VaultEvent[]        @relation("VaultEventActor")
+  demoOperations        DemoOperationLog[]  @relation("DemoOperationActor")
+
+  @@map("users")
+}
+
+model Artwork {
+  id          String        @id @default(uuid())
+  spiritId    String        @unique
+  chipId      String?
+  title       String
+  artist      String
+  year        Int?
+  medium      String?
+  dimensions  String?
+  description String?
+  value       Decimal       @db.Decimal(14, 2)
+  currency    String        @default("USD")
+  status      ArtworkStatus @default(DRAFT)
+
+  currentOwnerId String?
+  currentOwner   User?   @relation("ArtworkOwner", fields: [currentOwnerId], references: [id])
+
+  createdById String
+  createdBy   User   @relation("ArtworkCreator", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  images             ArtworkImage[]
+  verificationRecords VerificationRecord[]
+  provenanceEvents    ProvenanceEvent[]
+  listings            Listing[]
+  transactions        Transaction[]
+  vault               Vault?
+
+  @@map("artworks")
+}
+
+model ArtworkImage {
+  id        String  @id @default(uuid())
+  artworkId String
+  artwork   Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+  url       String
+  sortOrder Int     @default(0)
+
+  @@map("artwork_images")
+}
+
+model VerificationRecord {
+  id        String             @id @default(uuid())
+  artworkId String
+  artwork   Artwork            @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+  status    VerificationStatus @default(PENDING)
+
+  submittedById String
+  submittedBy   User   @relation("VerificationSubmitter", fields: [submittedById], references: [id])
+
+  reviewedById String?
+  reviewedBy   User?   @relation("VerificationReviewer", fields: [reviewedById], references: [id])
+
+  notes         String?
+  resultPayload Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("verification_records")
+}
+
+model ProvenanceEvent {
+  id        String              @id @default(uuid())
+  artworkId String
+  artwork   Artwork             @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+  type      ProvenanceEventType
+
+  fromOwnerId String?
+  toOwnerId   String?
+  listingId   String?
+  transactionId String?
+
+  actorId String?
+
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@map("provenance_events")
+  @@index([artworkId, createdAt])
+}
+
+model Listing {
+  id        String        @id @default(uuid())
+  artworkId String
+  artwork   Artwork       @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+
+  sellerId String
+  seller   User   @relation("ListingSeller", fields: [sellerId], references: [id])
+
+  price    Decimal       @db.Decimal(14, 2)
+  currency String        @default("USD")
+  status   ListingStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions Transaction[]
+
+  @@map("listings")
+}
+
+model Transaction {
+  id        String  @id @default(uuid())
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id])
+  artworkId String
+  artwork   Artwork @relation(fields: [artworkId], references: [id])
+
+  buyerId String
+  buyer   User   @relation("TransactionBuyer", fields: [buyerId], references: [id])
+  sellerId String
+  seller   User   @relation("TransactionSeller", fields: [sellerId], references: [id])
+
+  amount   Decimal           @db.Decimal(14, 2)
+  currency String            @default("USD")
+  status   TransactionStatus @default(PENDING)
+
+  paymentRef    String?
+  blockchainRef String?
+
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  @@map("transactions")
+}
+
+model Vault {
+  id        String      @id @default(uuid())
+  artworkId String      @unique
+  artwork   Artwork     @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+
+  coveragePercent Decimal     @db.Decimal(5, 2) @default(80)
+  status          VaultStatus @default(NOT_INITIALIZED)
+
+  activatedAt DateTime?
+  updatedAt   DateTime  @updatedAt
+
+  events VaultEvent[]
+
+  @@map("vaults")
+}
+
+model VaultEvent {
+  id      String         @id @default(uuid())
+  vaultId String
+  vault   Vault          @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+  type    VaultEventType
+
+  performedById String?
+  performedBy   User?   @relation("VaultEventActor", fields: [performedById], references: [id])
+
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@map("vault_events")
+}
+
+model DemoOperationLog {
+  id          String        @id @default(uuid())
+  operation   DemoOperation
+  datasetName String?
+
+  performedById String?
+  performedBy   User?   @relation("DemoOperationActor", fields: [performedById], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@map("demo_operation_logs")
+}

@@ -1,0 +1,24 @@
+{
+  "name": "spirit-protocol",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@11.22.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev:api": "pnpm --filter @spirit/api dev",
+    "dev:web": "pnpm --filter @spirit/web dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "test:e2e": "pnpm --filter @spirit/web test:e2e",
+    "db:migrate": "pnpm --filter @spirit/api db:migrate",
+    "db:seed": "pnpm --filter @spirit/api db:seed",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3"
+  }
+}
