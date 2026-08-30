@@ -2,6 +2,8 @@ interface TelegramWebApp {
   initData: string;
   ready: () => void;
   expand: () => void;
+  setHeaderColor: (color: string) => void;
+  setBackgroundColor: (color: string) => void;
 }
 
 declare global {
@@ -27,6 +29,14 @@ export function getInitData(): string {
   if (webApp?.initData) {
     webApp.ready();
     webApp.expand();
+    // The app is a fixed light theme; don't let the client's dark theme bleed
+    // into the native header/background chrome around it.
+    try {
+      webApp.setHeaderColor("#ffffff");
+      webApp.setBackgroundColor("#ffffff");
+    } catch {
+      // Older Telegram clients may not support these calls — safe to ignore.
+    }
     return webApp.initData;
   }
 
