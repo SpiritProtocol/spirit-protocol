@@ -20,7 +20,7 @@ FROM base AS build
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json tsconfig.base.json ./
 COPY apps/api/package.json apps/api/
 COPY packages/shared/package.json packages/shared/
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile
 COPY apps/api apps/api
 COPY packages/shared packages/shared
 RUN pnpm --filter @spirit/api exec prisma generate \
@@ -32,7 +32,7 @@ ENV NODE_ENV=production
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/api/package.json apps/api/
 COPY packages/shared/package.json packages/shared/
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --prod --filter "@spirit/api..."
+RUN pnpm install --frozen-lockfile --prod --filter "@spirit/api..."
 COPY apps/api/prisma apps/api/prisma
 RUN pnpm --filter @spirit/api exec prisma generate
 COPY --from=build /app/apps/api/dist apps/api/dist
