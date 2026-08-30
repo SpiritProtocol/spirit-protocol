@@ -1,0 +1,66 @@
+# Local end-to-end check of the production images (api + web + Postgres).
+# Not used by Railway — Railway builds each Dockerfile as its own service.
+#
+#   docker compose -f docker-compose.prod.yml up --build
+#   # first run only, load the investor demo data:
+#   docker compose -f docker-compose.prod.yml exec api node dist/seed.js
+#
+# web  -> http://localhost:8080
+# api  -> http://localhost:4000/health
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: spirit
+      POSTGRES_PASSWORD: spirit
+      POSTGRES_DB: spirit_protocol
+    volumes:
+      - spirit_prod_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U spirit -d spirit_protocol"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://spirit:spirit@postgres:5432/spirit_protocol
+      JWT_SECRET: local-prod-smoke-test-secret-change-me
+      TELEGRAM_AUTH_MODE: dev
+      CORS_ORIGIN: http://localhost:8080
+      ADMIN_DEFAULT_USERNAME: admin
+      ADMIN_DEFAULT_PASSWORD: admin123
+      HARDWARE_VERIFICATION_MODE: mock
+      BLOCKCHAIN_MODE: mock
+      PAYMENT_MODE: mock
+      VAULT_MODE: mock
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "4000:4000"
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_API_URL: http://localhost:4000
+    restart: unless-stopped
+    environment:
+      PORT: 8080
+    depends_on:
+      - api
+    ports:
+      - "8080:8080"
+
+volumes:
+  spirit_prod_pg:

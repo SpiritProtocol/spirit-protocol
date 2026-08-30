@@ -1,7 +1,11 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ["src/server.ts"],
+  entry: {
+    // Named entries keep the output flat: dist/server.js, dist/seed.js
+    server: "src/server.ts",
+    seed: "prisma/seed.ts",
+  },
   outDir: "dist",
   format: ["esm"],
   platform: "node",
