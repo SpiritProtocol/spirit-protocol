@@ -6,6 +6,7 @@ import { AppError } from "../../lib/errors.js";
 import { parseTelegramInitData } from "../../lib/telegram.js";
 import { toUserDto } from "../../mappers.js";
 import type { JwtPayload } from "../../plugins/auth.js";
+import type { DemoService } from "../demo/demo.service.js";
 
 export interface AuthResult {
   token: string;
@@ -16,6 +17,7 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaClient,
     private readonly signToken: (payload: JwtPayload) => string,
+    private readonly demo: DemoService,
   ) {}
 
   async loginWithTelegram(initData: string): Promise<AuthResult> {
@@ -44,6 +46,8 @@ export class AuthService {
         avatarUrl: parsed.user.photo_url ?? null,
       },
     });
+
+    await this.demo.provisionStarterVault(user.id);
 
     const token = this.signToken({ sub: user.id, role: user.role });
     return { token, user: toUserDto(user) };

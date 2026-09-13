@@ -3,7 +3,11 @@ import { adminLoginSchema, telegramAuthSchema } from "@spirit/shared";
 import { AuthService } from "./auth.service.js";
 
 export async function authRoutes(fastify: FastifyInstance) {
-  const authService = new AuthService(fastify.prisma, (payload) => fastify.jwt.sign(payload, { expiresIn: "12h" }));
+  const authService = new AuthService(
+    fastify.prisma,
+    (payload) => fastify.jwt.sign(payload, { expiresIn: "12h" }),
+    fastify.domain.demo,
+  );
 
   fastify.post("/auth/telegram", async (request, reply) => {
     const body = telegramAuthSchema.parse(request.body);
