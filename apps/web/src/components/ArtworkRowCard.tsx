@@ -26,14 +26,6 @@ export function ArtworkRowCard({ artwork }: { artwork: ArtworkSummaryDto }) {
         </div>
         <div className="flex items-center gap-3">
           <span className="font-mono text-[12px] font-medium">{currencyFormat.format(artwork.value)}</span>
-          {artwork.vault && artwork.vault.status === "ACTIVE" && (
-            <>
-              <span className="text-neutral-300">·</span>
-              <span className="font-mono text-[12px] text-neutral-400">
-                Floor {currencyFormat.format(artwork.vault.guaranteedFloor)}
-              </span>
-            </>
-          )}
         </div>
       </div>
       <ChevronRight size={16} strokeWidth={2} className="shrink-0 text-neutral-300" />

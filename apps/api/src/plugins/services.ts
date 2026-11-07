@@ -6,13 +6,11 @@ import {
   type HardwareVerificationService,
 } from "../services/hardware-verification/index.js";
 import { createPaymentService, type PaymentService } from "../services/payment/index.js";
-import { createVaultService, type VaultService } from "../services/vault/index.js";
 
 export interface Services {
   hardwareVerification: HardwareVerificationService;
   blockchain: BlockchainService;
   payment: PaymentService;
-  vault: VaultService;
 }
 
 declare module "fastify" {
@@ -27,7 +25,6 @@ export default fp(
       hardwareVerification: createHardwareVerificationService(),
       blockchain: createBlockchainService(),
       payment: createPaymentService(),
-      vault: createVaultService(fastify.prisma),
     } satisfies Services);
   },
   { name: "services-plugin", dependencies: ["prisma-plugin"] },

@@ -60,15 +60,6 @@ export const reviewVerificationSchema = z.object({
 export type ReviewVerificationInput = z.infer<typeof reviewVerificationSchema>;
 
 // ---------------------------------------------------------------------------
-// Vault
-// ---------------------------------------------------------------------------
-
-export const updateVaultCoverageSchema = z.object({
-  coveragePercent: z.number().min(0).max(100),
-});
-export type UpdateVaultCoverageInput = z.infer<typeof updateVaultCoverageSchema>;
-
-// ---------------------------------------------------------------------------
 // Listings & purchases
 // ---------------------------------------------------------------------------
 

@@ -10,7 +10,7 @@ export function WalletPage() {
         icon={WalletIcon}
         eyebrow="Connected Wallet"
         title="No Wallet Connected"
-        description="Connect a wallet to view your balance and manage vault redemptions."
+        description="Connect a wallet to view your balance."
         action={
           <button
             type="button"

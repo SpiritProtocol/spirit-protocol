@@ -47,7 +47,7 @@ export class AuthService {
       },
     });
 
-    await this.demo.provisionStarterVault(user.id);
+    await this.demo.provisionStarterCollection(user.id);
 
     const token = this.signToken({ sub: user.id, role: user.role });
     return { token, user: toUserDto(user) };

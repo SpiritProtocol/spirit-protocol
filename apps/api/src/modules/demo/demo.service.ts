@@ -6,7 +6,7 @@ import type { ListingsService } from "../listings/listings.service.js";
 import type { PurchasesService } from "../purchases/purchases.service.js";
 import type { VerificationsService } from "../verifications/verifications.service.js";
 import { INVESTOR_DEMO_ARTWORKS, INVESTOR_DEMO_USERS } from "./fixtures/investor-demo.js";
-import { STARTER_VAULT_ARTWORKS } from "./fixtures/starter-vault.js";
+import { STARTER_COLLECTION_ARTWORKS } from "./fixtures/starter-collection.js";
 
 export class DemoService {
   constructor(
@@ -62,8 +62,6 @@ export class DemoService {
 
   async clear(actorId: string): Promise<DemoOperationLogDto> {
     await this.prisma.$transaction([
-      this.prisma.vaultEvent.deleteMany({}),
-      this.prisma.vault.deleteMany({}),
       this.prisma.provenanceEvent.deleteMany({}),
       this.prisma.transaction.deleteMany({}),
       this.prisma.listing.deleteMany({}),
@@ -81,15 +79,15 @@ export class DemoService {
     return this.logOperation("RESET", actorId, datasetName);
   }
 
-  /** Gives a brand-new collector a starter Vault so the demo never opens to an empty collection. No-ops for anyone who already owns an artwork. */
-  async provisionStarterVault(ownerId: string): Promise<void> {
+  /** Gives a brand-new collector a starter collection so the demo never opens to an empty collection. No-ops for anyone who already owns an artwork. */
+  async provisionStarterCollection(ownerId: string): Promise<void> {
     const owned = await this.prisma.artwork.count({ where: { currentOwnerId: ownerId } });
     if (owned > 0) return;
 
     const admin = await this.prisma.user.findFirst({ where: { role: "ADMIN" } });
     if (!admin) return;
 
-    for (const fixture of STARTER_VAULT_ARTWORKS) {
+    for (const fixture of STARTER_COLLECTION_ARTWORKS) {
       const created = await this.artworks.create(
         {
           title: fixture.title,

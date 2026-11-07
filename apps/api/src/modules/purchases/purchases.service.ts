@@ -10,8 +10,7 @@ import type { ProvenanceService } from "../provenance/provenance.service.js";
  * The mock purchase flow: initiate() simulates the wallet-connect step,
  * confirm() simulates the payment-confirmation step and then atomically
  * flips listing status, artwork ownership, and artwork status back to
- * VERIFIED (unlisted, so the new owner can relist later) — the artwork's
- * vault carries over untouched.
+ * VERIFIED (unlisted, so the new owner can relist later).
  */
 export class PurchasesService {
   constructor(

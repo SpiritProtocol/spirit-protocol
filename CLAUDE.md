@@ -34,7 +34,6 @@ Physical Artwork
 → Provenance
 → Ownership
 → Marketplace
-→ Vault / Liquidity Protection
 → Purchase
 → New Ownership
 
@@ -64,40 +63,14 @@ The MVP includes:
 - collector collection
 - admin panel
 - demo data
-- Vault concept
-- 80% Vault coverage
-- liquidity floor calculation
 
-## Vault
+## Vault (postponed)
 
-Vault is a core product feature and must be represented in the MVP.
+The Vault concept (80% coverage, liquidity floor, collateral) has been removed from the MVP
+by a founder decision on 2026-11-07, because it could put off early customers.
 
-The default Vault coverage is 80%.
-
-Example:
-
-Artwork value: $25,000
-Coverage: 80%
-Liquidity floor: $20,000
-
-Formula:
-
-liquidity_floor = artwork_value × coverage_percentage
-
-The MVP must demonstrate the Vault concept but must NOT implement real financial guarantees.
-
-The following are OUT OF SCOPE:
-
-- real Vault smart contracts
-- real collateral
-- real liquidity
-- real buyback
-- real TON transactions
-- real cryptocurrency payments
-
-Use a mock Vault service.
-
-The architecture should allow the mock implementation to be replaced by a real TON-based Vault in the future.
+Do not reintroduce Vault, liquidity floor or guaranteed buyback in code or UI unless
+explicitly requested.
 
 ## Out of scope
 
@@ -108,7 +81,7 @@ Do not implement unless explicitly requested:
 - real NFC cryptographic verification
 - smart contracts
 - real blockchain ownership
-- Smart Vault implementation
+- Vault, liquidity floor or buyback (postponed, see above)
 - lending
 - collateral
 - real RWA liquidity
@@ -120,7 +93,7 @@ Do not implement unless explicitly requested:
 2. Frontend must not be trusted for business-critical operations.
 3. Artwork status, verification status and ownership are separate concepts.
 4. Provenance is represented as a sequence of events.
-5. Mock hardware, blockchain, payment and Vault functionality must be isolated behind services/interfaces.
+5. Mock hardware, blockchain and payment functionality must be isolated behind services/interfaces.
 6. Avoid unnecessary microservices.
 7. Keep the MVP simple and demonstrable.
 8. All important business logic should have automated tests.

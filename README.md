@@ -6,7 +6,7 @@ trading of physical artworks.
 The MVP demonstrates the end-to-end concept:
 
 > Physical Artwork → Spirit Identity → Verification → Digital Artwork Passport → Provenance
-> → Ownership → Marketplace → Vault / Liquidity Protection → Purchase → New Ownership
+> → Ownership → Marketplace → Purchase → New Ownership
 
 Real blockchain, NFC hardware and financial infrastructure are **out of scope**. Everything
 that would need them is implemented as a clean mock behind a service interface that a real
@@ -40,11 +40,9 @@ apps/
         blockchain/       mock ownership anchoring
         hardware-verification/  mock NFC / chip verification
         payment/          mock payment processing
-        vault/            mock Vault lifecycle (future: TON smart contract)
       modules/            business logic, one folder per domain area
-        auth/ artworks/ verifications/ provenance/ vault/
+        auth/ artworks/ verifications/ provenance/
         listings/ purchases/ collection/ users/ demo/
-      lib/vault-math.ts   liquidity-floor formula
   web/                    React Telegram Mini App
     src/
       routes/             collector screens + routes/admin/* panel
@@ -68,7 +66,7 @@ Follows the principles in `CLAUDE.md`:
    separate state machines (`ArtworkStatus`, `VerificationStatus`, ownership via
    `currentOwnerId`).
 3. **Provenance is an append-only event log** (`ProvenanceEvent`), written by services
-   whenever something meaningful happens (created, verified, listed, sold, vault activated…).
+   whenever something meaningful happens (created, verified, listed, sold…).
 4. **Infrastructure is isolated behind interfaces.** `services/*` each expose
    `create<Thing>Service()` returning an interface; only a `mock` implementation exists, and
    `*_MODE=real` throws `not implemented`. Swapping in a real service is a one-file change.
@@ -83,30 +81,21 @@ Fastify
   → cors
   → prismaPlugin        (fastify.prisma)
   → authPlugin          (fastify.authenticate, fastify.requireRole)
-  → servicesPlugin      (fastify.services — blockchain/hardware/payment/vault mocks)
+  → servicesPlugin      (fastify.services — blockchain/hardware/payment mocks)
   → domainPlugin        (fastify.domain — ArtworksService, VerificationsService, …)
   → module routes       (Zod-parse input → call domain service → return DTO)
   → setErrorHandler     (AppError → typed body, ZodError → 400 VALIDATION_ERROR)
 ```
-
-### Vault (core product concept)
-
-- Default coverage: **80%**.
-- `liquidity_floor = artwork_value × coverage_percent` — see `lib/vault-math.ts`.
-- The floor is **always derived, never persisted**, so it can't drift when value or coverage
-  changes.
-- `MockVaultService` persists only lifecycle state (`NOT_INITIALIZED` → `ACTIVE` → `LOCKED`)
-  and coverage. No real collateral, buyback or TON transactions.
 
 ---
 
 ## Data model (Prisma)
 
 `User`, `Artwork`, `ArtworkImage`, `VerificationRecord`, `ProvenanceEvent`, `Listing`,
-`Transaction`, `Vault`, `VaultEvent`, `DemoOperationLog`.
+`Transaction`, `DemoOperationLog`.
 
 Key enums: `UserRole`, `ArtworkStatus`, `VerificationStatus`, `ProvenanceEventType`,
-`ListingStatus`, `TransactionStatus`, `VaultStatus`.
+`ListingStatus`, `TransactionStatus`.
 
 ---
 
@@ -128,8 +117,6 @@ require `role = ADMIN`.
 | GET  | `/verifications/artwork/:artworkId` | history |
 | POST | `/verifications/:id/approve` · `/reject` | admin |
 | GET  | `/provenance/:artworkId` | provenance timeline |
-| GET  | `/vaults/:artworkId` | vault detail + derived floor |
-| PATCH | `/admin/vaults/:artworkId/coverage` | admin — override coverage |
 | GET/POST/PATCH | `/listings`, `/listings/:id` | marketplace listings |
 | POST | `/purchases` · `/purchases/confirm` | mock purchase flow (initiate → confirm) |
 | GET  | `/admin/transactions` | admin |
@@ -147,7 +134,7 @@ require `role = ADMIN`.
 |-------|--------|
 | `/` | Collection (owned artworks) |
 | `/store` | Catalog / marketplace (owned artworks hidden) |
-| `/artworks/:id` | Artwork detail — passport, provenance timeline, vault card, purchase panel |
+| `/artworks/:id` | Artwork detail — passport, provenance timeline, purchase panel |
 | `/wallet` | Transactions |
 | `/profile` | Profile |
 

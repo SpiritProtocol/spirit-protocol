@@ -11,7 +11,6 @@ import { listingsRoutes } from "./modules/listings/listings.routes.js";
 import { provenanceRoutes } from "./modules/provenance/provenance.routes.js";
 import { purchasesRoutes } from "./modules/purchases/purchases.routes.js";
 import { usersRoutes } from "./modules/users/users.routes.js";
-import { vaultRoutes } from "./modules/vault/vault.routes.js";
 import { verificationsRoutes } from "./modules/verifications/verifications.routes.js";
 import authPlugin from "./plugins/auth.js";
 import domainPlugin from "./plugins/domain.js";
@@ -38,7 +37,6 @@ export async function buildApp() {
   await app.register(artworksRoutes);
   await app.register(verificationsRoutes);
   await app.register(provenanceRoutes);
-  await app.register(vaultRoutes);
   await app.register(listingsRoutes);
   await app.register(purchasesRoutes);
   await app.register(collectionRoutes);

@@ -3,7 +3,6 @@ import type { UserRole, VerificationRecordDto } from "@spirit/shared";
 import { AppError } from "../../lib/errors.js";
 import { toVerificationRecordDto } from "../../mappers.js";
 import type { HardwareVerificationService } from "../../services/hardware-verification/index.js";
-import type { VaultService } from "../../services/vault/index.js";
 import type { ProvenanceService } from "../provenance/provenance.service.js";
 
 export class VerificationsService {
@@ -11,7 +10,6 @@ export class VerificationsService {
     private readonly prisma: PrismaClient,
     private readonly provenance: ProvenanceService,
     private readonly hardwareVerification: HardwareVerificationService,
-    private readonly vault: VaultService,
   ) {}
 
   /** Kicks off verification: simulates an NFC tap/scan, records the result, and moves the artwork into review. */
@@ -71,15 +69,6 @@ export class VerificationsService {
       type: "VERIFIED",
       actorId,
       metadata: { chipId: scan?.chipId ?? null, notes: notes ?? null },
-    });
-
-    const vaultState = await this.vault.initializeVault({ artworkId: record.artworkId });
-
-    await this.provenance.record({
-      artworkId: record.artworkId,
-      type: "VAULT_ACTIVATED",
-      actorId,
-      metadata: { coveragePercent: vaultState.coveragePercent },
     });
 
     return toVerificationRecordDto(updated);

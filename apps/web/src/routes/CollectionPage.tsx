@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { CollectionDto } from "@spirit/shared";
 import { apiClient } from "../lib/apiClient";
 import { ScreenHeader } from "../components/ScreenHeader";
-import { VaultSummaryCard } from "../components/VaultSummaryCard";
+import { CollectionSummaryCard } from "../components/CollectionSummaryCard";
 import { ArtworkRowCard } from "../components/ArtworkRowCard";
 import { TransactionRow } from "../components/TransactionRow";
 import { useAuth } from "../context/AuthContext";
@@ -33,7 +33,7 @@ export function CollectionPage() {
     <div className="pb-4">
       <ScreenHeader title="Spirit Protocol" badge="Mainnet" />
 
-      <VaultSummaryCard artworks={artworks} />
+      <CollectionSummaryCard artworks={artworks} />
 
       <div className="mb-3 flex items-center justify-between px-5">
         <span className="text-[11px] tracking-[0.15em] text-neutral-400 uppercase">Your Collection</span>

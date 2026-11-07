@@ -12,7 +12,6 @@ const envSchema = z.object({
   HARDWARE_VERIFICATION_MODE: z.enum(["mock", "real"]).default("mock"),
   BLOCKCHAIN_MODE: z.enum(["mock", "real"]).default("mock"),
   PAYMENT_MODE: z.enum(["mock", "real"]).default("mock"),
-  VAULT_MODE: z.enum(["mock", "real"]).default("mock"),
   STORAGE_MODE: z.enum(["local", "s3"]).default("local"),
   STORAGE_LOCAL_DIR: z.string().default("./uploads"),
   CORS_ORIGIN: z.string().default("*"),

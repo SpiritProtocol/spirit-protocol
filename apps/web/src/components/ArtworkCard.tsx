@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import type { ArtworkSummaryDto } from "@spirit/shared";
 import { FallbackImage } from "./FallbackImage";
 import { StatusBadge } from "./StatusBadge";
-import { VaultBadge } from "./VaultBadge";
 import { currencyFormat } from "../lib/format";
 
 export function ArtworkCard({ artwork }: { artwork: ArtworkSummaryDto }) {
@@ -24,7 +23,6 @@ export function ArtworkCard({ artwork }: { artwork: ArtworkSummaryDto }) {
         <div className="mt-auto flex items-center justify-between pt-2">
           <span className="text-lg font-semibold">{currencyFormat.format(artwork.value)}</span>
         </div>
-        {artwork.vault && <VaultBadge vault={artwork.vault} />}
       </div>
     </Link>
   );

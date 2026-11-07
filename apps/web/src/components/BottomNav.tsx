@@ -1,9 +1,9 @@
 import { NavLink } from "react-router-dom";
-import { Shield, ShoppingBag, CreditCard, User } from "lucide-react";
+import { LayoutGrid, ShoppingBag, CreditCard, User } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 const TABS: { to: string; label: string; icon: LucideIcon; end?: boolean }[] = [
-  { to: "/", label: "Vault", icon: Shield, end: true },
+  { to: "/", label: "Collection", icon: LayoutGrid, end: true },
   { to: "/store", label: "Store", icon: ShoppingBag },
   { to: "/wallet", label: "Wallet", icon: CreditCard },
   { to: "/profile", label: "Profile", icon: User },
