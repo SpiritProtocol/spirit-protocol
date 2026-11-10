@@ -193,3 +193,21 @@ Root (`package.json`):
 | `pnpm db:migrate` / `pnpm db:seed` | Prisma migrate deploy / seed |
 | `pnpm format` | Prettier |
 
+## Tests
+
+API tests are integration tests: they boot the Fastify app with mock services and talk to a
+real Postgres database. Every test file wipes all tables, so the database name must end in
+`_test` (the harness refuses anything else).
+
+```bash
+docker compose up -d postgres          # Postgres on localhost:5433
+pnpm --filter @spirit/api test          # creates/migrates spirit_test, then runs Vitest
+```
+
+To use another database, set `TEST_DATABASE_URL`, e.g.
+`TEST_DATABASE_URL=postgresql://spirit:spirit@localhost:5432/spirit_test`.
+
+CI (`.github/workflows/ci.yml`) runs on every pull request and on pushes to `master`:
+install, Prisma generate, API typecheck, build of all packages and `pnpm test` against a
+Postgres service container. Lint is not in CI yet because the repo has no ESLint config.
+
