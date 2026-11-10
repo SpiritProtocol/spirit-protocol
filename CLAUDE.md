@@ -72,6 +72,23 @@ by a founder decision on 2026-11-07, because it could put off early customers.
 Do not reintroduce Vault, liquidity floor or guaranteed buyback in code or UI unless
 explicitly requested.
 
+## Product documents
+
+Requirements and decisions agreed with the founder live in `docs/` (in Russian):
+
+- `docs/release-v0.2.0.md` — the current release spec: TON smart contracts in Tolk
+  (registry, artwork passport, sale contract with commissions), TON Connect wallet,
+  automated tests, testnet only. It lists the work order and the definition of done.
+- `docs/smart-contracts-analysis.md` — the original analysis of the contract design
+  (written before the Vault was removed; the release spec wins where they differ).
+
+Read the release spec before starting any v0.2.0 work. For release v0.2.0 the
+registry, passport and sale contracts on TON **testnet** are in scope; mainnet,
+real NFC and everything else in "Out of scope" below still are not.
+
+The `spirit-ba-po` skill in `.claude/skills/` is the Business Analyst / Product Owner
+role for discussing requirements.
+
 ## Out of scope
 
 Do not implement unless explicitly requested:
