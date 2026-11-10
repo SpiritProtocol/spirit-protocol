@@ -1,21 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
-import type { ArtworkSummaryDto } from "@spirit/shared";
-import { apiClient } from "../lib/apiClient";
+import { storeQuery } from "../lib/queries";
 import { ArtworkCard } from "../components/ArtworkCard";
 import { ScreenHeader } from "../components/ScreenHeader";
+import { CatalogSkeleton } from "../components/Skeletons";
 import { AppHeader } from "../components/AppHeader";
 import { useAuth } from "../context/AuthContext";
 
 export function CatalogPage() {
   const auth = useAuth();
   const query = useQuery({
-    queryKey: ["artworks", "store", auth.user?.id],
-    queryFn: () => apiClient.get<ArtworkSummaryDto[]>(`/artworks?excludeOwnerId=${auth.user!.id}`),
+    ...storeQuery(auth.user?.id),
     enabled: auth.status === "authenticated",
   });
 
   if (auth.status === "loading" || query.isLoading) {
-    return <div className="p-6 text-center text-neutral-400">Loading catalog…</div>;
+    return <CatalogSkeleton />;
   }
 
   if (auth.status === "error") {

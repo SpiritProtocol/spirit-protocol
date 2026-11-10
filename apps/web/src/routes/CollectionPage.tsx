@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import type { CollectionDto } from "@spirit/shared";
-import { apiClient } from "../lib/apiClient";
+import { collectionQuery } from "../lib/queries";
 import { ScreenHeader } from "../components/ScreenHeader";
+import { CollectionSkeleton } from "../components/Skeletons";
 import { CollectionSummaryCard } from "../components/CollectionSummaryCard";
 import { ArtworkRowCard } from "../components/ArtworkRowCard";
 import { TransactionRow } from "../components/TransactionRow";
@@ -10,13 +10,12 @@ import { useAuth } from "../context/AuthContext";
 export function CollectionPage() {
   const auth = useAuth();
   const query = useQuery({
-    queryKey: ["collection"],
-    queryFn: () => apiClient.get<CollectionDto>("/collection"),
+    ...collectionQuery(),
     enabled: auth.status === "authenticated",
   });
 
   if (auth.status === "loading" || query.isLoading) {
-    return <div className="p-6 text-center text-neutral-400">Loading collection…</div>;
+    return <CollectionSkeleton />;
   }
 
   if (auth.status === "error") {

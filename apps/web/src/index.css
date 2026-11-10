@@ -2,6 +2,8 @@
 
 :root {
   color-scheme: light;
+  /* env() can report 0 inside Telegram's webview, so also read the inset telegram-web-app.js exposes. */
+  --nav-bottom-gap: max(env(safe-area-inset-bottom, 0px), var(--tg-safe-area-inset-bottom, 0px), 0.75rem);
 }
 
 body {

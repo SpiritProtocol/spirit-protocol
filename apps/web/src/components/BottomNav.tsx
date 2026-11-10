@@ -11,7 +11,7 @@ const TABS: { to: string; label: string; icon: LucideIcon; end?: boolean }[] = [
 
 export function BottomNav() {
   return (
-    <nav className="fixed inset-x-0 bottom-0 border-t border-neutral-200 bg-white/95 backdrop-blur-sm">
+    <nav className="fixed inset-x-0 bottom-0 border-t border-neutral-200 bg-white/95 pb-(--nav-bottom-gap) backdrop-blur-sm">
       <div className="mx-auto flex max-w-lg items-stretch">
         {TABS.map((tab) => (
           <NavLink
@@ -39,7 +39,6 @@ export function BottomNav() {
           </NavLink>
         ))}
       </div>
-      <div className="h-1.5" />
     </nav>
   );
 }
