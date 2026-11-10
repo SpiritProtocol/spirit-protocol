@@ -10,7 +10,7 @@ The app runs as **three services in one Railway project**:
 
 `web` is a static Vite bundle served by Caddy. `api` is the Fastify server; its
 image runs `prisma migrate deploy` on start, then `node dist/server.js`. All
-domain services (vault, payment, blockchain, hardware verification) run in
+domain services (payment, blockchain, hardware verification) run in
 **mock** mode.
 
 > **Note on config-as-code.** Railway deprecated `railway.json` / `railway.toml`
@@ -105,7 +105,6 @@ resolves.)
 | `HARDWARE_VERIFICATION_MODE` | `mock`                                                |
 | `BLOCKCHAIN_MODE`            | `mock`                                                |
 | `PAYMENT_MODE`               | `mock`                                                |
-| `VAULT_MODE`                 | `mock`                                                |
 
 - **`CORS_ORIGIN`**: the reference is `${{web.RAILWAY_PUBLIC_DOMAIN}}` but it has
   no scheme, so the full value is `https://${{web.RAILWAY_PUBLIC_DOMAIN}}`. If

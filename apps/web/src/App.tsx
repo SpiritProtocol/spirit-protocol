@@ -12,7 +12,7 @@ import { BottomNav } from "./components/BottomNav";
 function CollectorApp() {
   return (
     <AuthProvider>
-      <div className="mx-auto max-w-lg pb-20">
+      <div className="mx-auto max-w-lg pb-[calc(5rem+var(--nav-bottom-gap))]">
         <Routes>
           <Route path="/" element={<CollectionPage />} />
           <Route path="/store" element={<CatalogPage />} />

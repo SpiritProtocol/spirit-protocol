@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from "react";
+import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
 import { ChevronLeft, Cpu, Shield } from "lucide-react";
@@ -6,8 +6,6 @@ import type { ArtworkDetailDto, ProvenanceEventDto, VerificationRecordDto } from
 import { apiClient } from "../lib/apiClient";
 import { FallbackImage } from "../components/FallbackImage";
 import { StatusBadge } from "../components/StatusBadge";
-import { VaultCard } from "../components/VaultCard";
-import { VaultStatusModal } from "../components/VaultStatusModal";
 import { VerificationHistory } from "../components/VerificationHistory";
 import { ProvenanceTimeline } from "../components/ProvenanceTimeline";
 import { PurchasePanel } from "../components/PurchasePanel";
@@ -28,7 +26,6 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 export function ArtworkDetailPage() {
   const { id } = useParams<{ id: string }>();
   const auth = useAuth();
-  const [vaultModalOpen, setVaultModalOpen] = useState(false);
 
   const queriesEnabled = Boolean(id) && auth.status === "authenticated";
   const artworkQuery = useQuery({
@@ -124,22 +121,6 @@ export function ArtworkDetailPage() {
 
       {artwork.description && <p className="mt-4 text-sm text-neutral-600">{artwork.description}</p>}
 
-      {artwork.vault && (
-        <div className="mt-5">
-          <VaultCard vault={artwork.vault} />
-        </div>
-      )}
-
-      {artwork.vault?.status === "ACTIVE" && (
-        <button
-          type="button"
-          onClick={() => setVaultModalOpen(true)}
-          className="mt-2.5 w-full rounded-xl bg-black py-3.5 text-[13px] font-medium tracking-[0.05em] text-white active:opacity-80"
-        >
-          [ Check Vault Status ]
-        </button>
-      )}
-
       <Section title="Digital Passport">
         <dl className="grid grid-cols-2 gap-y-3 rounded-xl border border-neutral-200 p-4 text-sm sm:grid-cols-3">
           <div>
@@ -184,10 +165,6 @@ export function ArtworkDetailPage() {
           <ProvenanceTimeline events={provenanceQuery.data ?? []} />
         )}
       </Section>
-
-      {vaultModalOpen && artwork.vault && (
-        <VaultStatusModal title={artwork.title} vault={artwork.vault} onClose={() => setVaultModalOpen(false)} />
-      )}
     </div>
   );
 }

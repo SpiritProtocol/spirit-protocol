@@ -6,8 +6,6 @@ import type {
   ProvenanceEvent,
   Transaction,
   User,
-  Vault,
-  VaultEvent,
   VerificationRecord,
 } from "@prisma/client";
 import type {
@@ -18,11 +16,8 @@ import type {
   ProvenanceEventDto,
   TransactionDto,
   UserDto,
-  VaultEventDto,
-  VaultSummaryDto,
   VerificationRecordDto,
 } from "@spirit/shared";
-import { computeGuaranteedFloor } from "./lib/vault-math.js";
 
 export function toUserDto(user: User): UserDto {
   return {
@@ -35,35 +30,9 @@ export function toUserDto(user: User): UserDto {
   };
 }
 
-export function toVaultSummaryDto(artwork: Artwork, vault: Vault | null): VaultSummaryDto | null {
-  if (!vault) return null;
-  const artworkValue = Number(artwork.value);
-  const coveragePercent = Number(vault.coveragePercent);
-  return {
-    artworkId: artwork.id,
-    status: vault.status,
-    artworkValue,
-    coveragePercent,
-    guaranteedFloor: computeGuaranteedFloor(artworkValue, coveragePercent),
-    currency: artwork.currency,
-    activatedAt: vault.activatedAt ? vault.activatedAt.toISOString() : null,
-  };
-}
-
-export function toVaultEventDto(event: VaultEvent, performedBy: User | null): VaultEventDto {
-  return {
-    id: event.id,
-    type: event.type,
-    metadata: (event.metadata as Record<string, unknown>) ?? {},
-    performedBy: performedBy ? toUserDto(performedBy) : null,
-    createdAt: event.createdAt.toISOString(),
-  };
-}
-
 export type ArtworkWithRelations = Artwork & {
   images: ArtworkImage[];
   currentOwner: User | null;
-  vault: Vault | null;
 };
 
 export function toArtworkSummaryDto(artwork: ArtworkWithRelations): ArtworkSummaryDto {
@@ -79,7 +48,6 @@ export function toArtworkSummaryDto(artwork: ArtworkWithRelations): ArtworkSumma
     currency: artwork.currency,
     coverImageUrl: cover?.url ?? null,
     currentOwner: artwork.currentOwner ? toUserDto(artwork.currentOwner) : null,
-    vault: toVaultSummaryDto(artwork, artwork.vault),
   };
 }
 
@@ -177,5 +145,4 @@ export function toDemoOperationLogDto(log: DemoOperationLog & { performedBy: Use
 export const artworkInclude = {
   images: true,
   currentOwner: true,
-  vault: true,
 } as const;

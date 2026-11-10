@@ -5,14 +5,12 @@ import { DemoService } from "../modules/demo/demo.service.js";
 import { ListingsService } from "../modules/listings/listings.service.js";
 import { ProvenanceService } from "../modules/provenance/provenance.service.js";
 import { PurchasesService } from "../modules/purchases/purchases.service.js";
-import { VaultModuleService } from "../modules/vault/vault.service.js";
 import { VerificationsService } from "../modules/verifications/verifications.service.js";
 
 export interface Domain {
   provenance: ProvenanceService;
   artworks: ArtworksService;
   verifications: VerificationsService;
-  vault: VaultModuleService;
   listings: ListingsService;
   purchases: PurchasesService;
   demo: DemoService;
@@ -30,9 +28,8 @@ export default fp(
     const { prisma, services } = fastify;
 
     const provenance = new ProvenanceService(prisma);
-    const artworks = new ArtworksService(prisma, provenance, services.blockchain, services.vault);
-    const verifications = new VerificationsService(prisma, provenance, services.hardwareVerification, services.vault);
-    const vault = new VaultModuleService(prisma, services.vault, provenance);
+    const artworks = new ArtworksService(prisma, provenance, services.blockchain);
+    const verifications = new VerificationsService(prisma, provenance, services.hardwareVerification);
     const listings = new ListingsService(prisma, provenance);
     const purchases = new PurchasesService(prisma, provenance, services.payment, services.blockchain);
     const demo = new DemoService(prisma, artworks, verifications, listings, purchases);
@@ -41,7 +38,6 @@ export default fp(
       provenance,
       artworks,
       verifications,
-      vault,
       listings,
       purchases,
       demo,

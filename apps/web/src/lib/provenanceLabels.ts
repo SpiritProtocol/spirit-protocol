@@ -6,8 +6,6 @@ export const PROVENANCE_EVENT_LABELS: Record<ProvenanceEventType, string> = {
   VERIFICATION_STARTED: "Verification started",
   VERIFIED: "Verified",
   VERIFICATION_REJECTED: "Verification rejected",
-  VAULT_ACTIVATED: "Vault activated",
-  VAULT_COVERAGE_UPDATED: "Vault coverage updated",
   LISTED: "Listed for sale",
   LISTING_CANCELLED: "Listing cancelled",
   OWNERSHIP_TRANSFERRED: "Ownership transferred",

@@ -5,8 +5,6 @@ import type {
   ProvenanceEventType,
   TransactionStatus,
   UserRole,
-  VaultEventType,
-  VaultStatus,
   VerificationStatus,
 } from "./enums.js";
 
@@ -17,30 +15,6 @@ export interface UserDto {
   displayName: string;
   avatarUrl: string | null;
   role: UserRole;
-}
-
-/** Always derived (artworkValue x coveragePercent), never trusted from a client. */
-export interface VaultSummaryDto {
-  artworkId: string;
-  status: VaultStatus;
-  artworkValue: number;
-  coveragePercent: number;
-  guaranteedFloor: number;
-  currency: string;
-  activatedAt: string | null;
-}
-
-export interface VaultDetailDto {
-  summary: VaultSummaryDto;
-  events: VaultEventDto[];
-}
-
-export interface VaultEventDto {
-  id: string;
-  type: VaultEventType;
-  metadata: Record<string, unknown>;
-  performedBy: UserDto | null;
-  createdAt: string;
 }
 
 export interface ArtworkImageDto {
@@ -60,7 +34,6 @@ export interface ArtworkSummaryDto {
   currency: string;
   coverImageUrl: string | null;
   currentOwner: UserDto | null;
-  vault: VaultSummaryDto | null;
 }
 
 export interface ArtworkDetailDto extends ArtworkSummaryDto {

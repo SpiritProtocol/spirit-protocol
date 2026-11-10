@@ -13,7 +13,6 @@ export function ArtworkAdminRow({ artwork, users }: { artwork: ArtworkSummaryDto
   const queryClient = useQueryClient();
   const [status, setStatus] = useState<ArtworkStatus>(artwork.status);
   const [ownerId, setOwnerId] = useState(artwork.currentOwner?.id ?? "");
-  const [coverage, setCoverage] = useState(artwork.vault?.coveragePercent ?? 80);
 
   const invalidate = () => void queryClient.invalidateQueries({ queryKey: ["artworks"] });
 
@@ -25,12 +24,8 @@ export function ArtworkAdminRow({ artwork, users }: { artwork: ArtworkSummaryDto
     mutationFn: () => apiClient.patch(`/artworks/${artwork.id}/owner`, { ownerId }),
     onSuccess: invalidate,
   });
-  const coverageMutation = useMutation({
-    mutationFn: () => apiClient.patch(`/admin/vaults/${artwork.id}/coverage`, { coveragePercent: coverage }),
-    onSuccess: invalidate,
-  });
 
-  const error = statusMutation.error ?? ownerMutation.error ?? coverageMutation.error;
+  const error = statusMutation.error ?? ownerMutation.error;
 
   return (
     <li className="flex gap-4 rounded-xl border border-neutral-200 p-4">
@@ -88,27 +83,6 @@ export function ArtworkAdminRow({ artwork, users }: { artwork: ArtworkSummaryDto
           >
             Assign owner
           </button>
-
-          {artwork.vault && (
-            <>
-              <input
-                type="number"
-                min={0}
-                max={100}
-                value={coverage}
-                onChange={(e) => setCoverage(Number(e.target.value))}
-                className="w-16 rounded-lg border border-neutral-200 px-2 py-1.5 text-xs outline-none"
-              />
-              <button
-                type="button"
-                onClick={() => coverageMutation.mutate()}
-                disabled={coverageMutation.isPending || coverage === artwork.vault.coveragePercent}
-                className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium hover:bg-neutral-50 disabled:opacity-40"
-              >
-                Set vault %
-              </button>
-            </>
-          )}
         </div>
         {error && (
           <p className="mt-2 text-xs text-red-500">{error instanceof ApiError ? error.message : "Something went wrong"}</p>

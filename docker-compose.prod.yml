@@ -41,7 +41,6 @@ services:
       HARDWARE_VERIFICATION_MODE: mock
       BLOCKCHAIN_MODE: mock
       PAYMENT_MODE: mock
-      VAULT_MODE: mock
     depends_on:
       postgres:
         condition: service_healthy

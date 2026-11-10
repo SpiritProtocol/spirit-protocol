@@ -35,8 +35,6 @@ enum ProvenanceEventType {
   VERIFICATION_STARTED
   VERIFIED
   VERIFICATION_REJECTED
-  VAULT_ACTIVATED
-  VAULT_COVERAGE_UPDATED
   LISTED
   LISTING_CANCELLED
   OWNERSHIP_TRANSFERRED
@@ -55,18 +53,6 @@ enum TransactionStatus {
   COMPLETED
   FAILED
   CANCELLED
-}
-
-enum VaultStatus {
-  NOT_INITIALIZED
-  ACTIVE
-  LOCKED
-}
-
-enum VaultEventType {
-  ACTIVATED
-  COVERAGE_UPDATED
-  VALUE_UPDATED
 }
 
 enum DemoOperation {
@@ -93,7 +79,6 @@ model User {
   listings              Listing[]           @relation("ListingSeller")
   purchasesAsBuyer      Transaction[]       @relation("TransactionBuyer")
   purchasesAsSeller     Transaction[]       @relation("TransactionSeller")
-  vaultEventsPerformed  VaultEvent[]        @relation("VaultEventActor")
   demoOperations        DemoOperationLog[]  @relation("DemoOperationActor")
 
   @@map("users")
@@ -127,7 +112,6 @@ model Artwork {
   provenanceEvents    ProvenanceEvent[]
   listings            Listing[]
   transactions        Transaction[]
-  vault               Vault?
 
   @@map("artworks")
 }
@@ -226,37 +210,6 @@ model Transaction {
   completedAt DateTime?
 
   @@map("transactions")
-}
-
-model Vault {
-  id        String      @id @default(uuid())
-  artworkId String      @unique
-  artwork   Artwork     @relation(fields: [artworkId], references: [id], onDelete: Cascade)
-
-  coveragePercent Decimal     @db.Decimal(5, 2) @default(80)
-  status          VaultStatus @default(NOT_INITIALIZED)
-
-  activatedAt DateTime?
-  updatedAt   DateTime  @updatedAt
-
-  events VaultEvent[]
-
-  @@map("vaults")
-}
-
-model VaultEvent {
-  id      String         @id @default(uuid())
-  vaultId String
-  vault   Vault          @relation(fields: [vaultId], references: [id], onDelete: Cascade)
-  type    VaultEventType
-
-  performedById String?
-  performedBy   User?   @relation("VaultEventActor", fields: [performedById], references: [id])
-
-  metadata  Json?
-  createdAt DateTime @default(now())
-
-  @@map("vault_events")
 }
 
 model DemoOperationLog {

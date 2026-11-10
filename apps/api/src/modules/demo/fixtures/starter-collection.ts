@@ -1,4 +1,4 @@
-export interface StarterVaultArtwork {
+export interface StarterCollectionArtwork {
   title: string;
   artist: string;
   year: number;
@@ -8,14 +8,14 @@ export interface StarterVaultArtwork {
   images: string[];
 }
 
-/** Granted to every new collector on first login so the Vault page is never empty for a visitor trying the demo. */
-export const STARTER_VAULT_ARTWORKS: StarterVaultArtwork[] = [
+/** Granted to every new collector on first login so the Collection page is never empty for a visitor trying the demo. */
+export const STARTER_COLLECTION_ARTWORKS: StarterCollectionArtwork[] = [
   {
     title: "Lucent Fragment",
     artist: "Spirit Studio",
     year: 2024,
     medium: "Cast resin, dichroic glass",
-    description: "A light-refracting fragment piece from the Lucent series, held in the Vault under standard coverage.",
+    description: "A light-refracting fragment piece from the Lucent series, exploring how glass bends and splits light.",
     value: 12000,
     images: ["https://images.unsplash.com/photo-1578926288207-a90a5366759d?q=80&w=800&auto=format&fit=crop"],
   },

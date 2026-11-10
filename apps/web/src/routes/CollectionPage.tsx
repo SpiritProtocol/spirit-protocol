@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import type { CollectionDto } from "@spirit/shared";
-import { apiClient } from "../lib/apiClient";
+import { collectionQuery } from "../lib/queries";
 import { ScreenHeader } from "../components/ScreenHeader";
-import { VaultSummaryCard } from "../components/VaultSummaryCard";
+import { CollectionSkeleton } from "../components/Skeletons";
+import { CollectionSummaryCard } from "../components/CollectionSummaryCard";
 import { ArtworkRowCard } from "../components/ArtworkRowCard";
 import { TransactionRow } from "../components/TransactionRow";
 import { useAuth } from "../context/AuthContext";
@@ -10,13 +10,12 @@ import { useAuth } from "../context/AuthContext";
 export function CollectionPage() {
   const auth = useAuth();
   const query = useQuery({
-    queryKey: ["collection"],
-    queryFn: () => apiClient.get<CollectionDto>("/collection"),
+    ...collectionQuery(),
     enabled: auth.status === "authenticated",
   });
 
   if (auth.status === "loading" || query.isLoading) {
-    return <div className="p-6 text-center text-neutral-400">Loading collection…</div>;
+    return <CollectionSkeleton />;
   }
 
   if (auth.status === "error") {
@@ -33,7 +32,7 @@ export function CollectionPage() {
     <div className="pb-4">
       <ScreenHeader title="Spirit Protocol" badge="Mainnet" />
 
-      <VaultSummaryCard artworks={artworks} />
+      <CollectionSummaryCard artworks={artworks} />
 
       <div className="mb-3 flex items-center justify-between px-5">
         <span className="text-[11px] tracking-[0.15em] text-neutral-400 uppercase">Your Collection</span>

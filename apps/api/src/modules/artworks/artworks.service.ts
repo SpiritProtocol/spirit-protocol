@@ -5,7 +5,6 @@ import { generateSpiritId } from "../../lib/ids.js";
 import { artworkInclude, toArtworkDetailDto, toArtworkSummaryDto, type ArtworkWithRelations } from "../../mappers.js";
 import type { BlockchainService } from "../../services/blockchain/index.js";
 import type { ProvenanceService } from "../provenance/provenance.service.js";
-import type { VaultService } from "../../services/vault/index.js";
 
 export interface ArtworkListFilters {
   status?: ArtworkStatus;
@@ -18,7 +17,6 @@ export class ArtworksService {
     private readonly prisma: PrismaClient,
     private readonly provenance: ProvenanceService,
     private readonly blockchain: BlockchainService,
-    private readonly vault: VaultService,
   ) {}
 
   async create(input: CreateArtworkInput, actorId: string): Promise<ArtworkDetailDto> {
@@ -55,9 +53,8 @@ export class ArtworksService {
     return this.getById(artwork.id);
   }
 
-  async update(id: string, input: UpdateArtworkInput, actorId: string): Promise<ArtworkDetailDto> {
-    const existing = await this.requireArtwork(id);
-    const valueChanged = input.value !== undefined && Number(existing.value) !== input.value;
+  async update(id: string, input: UpdateArtworkInput): Promise<ArtworkDetailDto> {
+    await this.requireArtwork(id);
 
     const artwork = await this.prisma.artwork.update({
       where: { id },
@@ -75,10 +72,6 @@ export class ArtworksService {
       },
       include: artworkInclude,
     });
-
-    if (valueChanged) {
-      await this.vault.recordValueChanged({ artworkId: id, actorId });
-    }
 
     return this.toDetail(artwork);
   }

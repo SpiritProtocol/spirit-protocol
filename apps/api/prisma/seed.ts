@@ -10,7 +10,6 @@ import { VerificationsService } from "../src/modules/verifications/verifications
 import { createBlockchainService } from "../src/services/blockchain/index.js";
 import { createHardwareVerificationService } from "../src/services/hardware-verification/index.js";
 import { createPaymentService } from "../src/services/payment/index.js";
-import { createVaultService } from "../src/services/vault/index.js";
 
 async function main() {
   const prisma = new PrismaClient();
@@ -29,11 +28,10 @@ async function main() {
   const provenance = new ProvenanceService(prisma);
   const blockchain = createBlockchainService();
   const hardwareVerification = createHardwareVerificationService();
-  const vault = createVaultService(prisma);
   const payment = createPaymentService();
 
-  const artworks = new ArtworksService(prisma, provenance, blockchain, vault);
-  const verifications = new VerificationsService(prisma, provenance, hardwareVerification, vault);
+  const artworks = new ArtworksService(prisma, provenance, blockchain);
+  const verifications = new VerificationsService(prisma, provenance, hardwareVerification);
   const listings = new ListingsService(prisma, provenance);
   const purchases = new PurchasesService(prisma, provenance, payment, blockchain);
   const demo = new DemoService(prisma, artworks, verifications, listings, purchases);

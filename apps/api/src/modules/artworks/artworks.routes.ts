@@ -46,7 +46,7 @@ export async function artworksRoutes(fastify: FastifyInstance) {
     async (request, reply) => {
       const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
       const body = updateArtworkSchema.parse(request.body);
-      const result = await artworks.update(id, body, request.currentUser!.sub);
+      const result = await artworks.update(id, body);
       return reply.send(result);
     },
   );
