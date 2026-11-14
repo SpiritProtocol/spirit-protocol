@@ -17,7 +17,7 @@ Spirit Protocol — инвесторский MVP Telegram Mini App для вер
 
 Перед любой работой сверяйся с источниками в таком порядке:
 1. Код репозитория `SpiritProtocol/spirit-protocol` (`apps/api`, `apps/web`, `packages/shared`, `apps/api/prisma/schema.prisma`) и его `CLAUDE.md`, `README.md`.
-2. Документы в `docs/`: `release-v0.2.0.md` (текущий релиз: контракты на Tolk, кошелёк, продажа с комиссиями, автотесты) и `smart-contracts-analysis.md` (исходный разбор схемы контрактов).
+2. Документы в `docs/`: `release-v1.2.0.md` (текущий релиз: контракты на Tolk, кошелёк, продажа с комиссиями, автотесты) и `smart-contracts-analysis.md` (исходный разбор схемы контрактов).
 3. Подтверждённые решения основателя в переписке.
 
 Если источники расходятся, побеждает код; расхождение назови явно.
@@ -26,7 +26,7 @@ Spirit Protocol — инвесторский MVP Telegram Mini App для вер
 - Бэкенд — модульный монолит (auth, artworks, verifications, provenance, vault, listings, purchases, collection, users, demo).
 - Блокчейн, NFC-проверка и оплата — моки за интерфейсами в `apps/api/src/services/*` с переключателем `*_MODE=mock|real`; `real` не реализован.
 - Статус произведения, статус верификации и владение — разные сущности; provenance — последовательность событий.
-- Вне скоупа: реальное NFC, Vault, залог, кредитование, реальная ликвидность и выкуп, mainnet. Контракты на Tolk в testnet входят в релиз v0.2.0.
+- Вне скоупа: реальное NFC, Vault, залог, кредитование, реальная ликвидность и выкуп, mainnet. Контракты на Tolk в testnet входят в релиз v1.2.0.
 
 ## Обязанности
 

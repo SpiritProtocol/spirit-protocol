@@ -76,13 +76,13 @@ explicitly requested.
 
 Requirements and decisions agreed with the founder live in `docs/` (in Russian):
 
-- `docs/release-v0.2.0.md` — the current release spec: TON smart contracts in Tolk
+- `docs/release-v1.2.0.md` — the current release spec: TON smart contracts in Tolk
   (registry, artwork passport, sale contract with commissions), TON Connect wallet,
   automated tests, testnet only. It lists the work order and the definition of done.
 - `docs/smart-contracts-analysis.md` — the original analysis of the contract design
   (written before the Vault was removed; the release spec wins where they differ).
 
-Read the release spec before starting any v0.2.0 work. For release v0.2.0 the
+Read the release spec before starting any v1.2.0 work. For release v1.2.0 the
 registry, passport and sale contracts on TON **testnet** are in scope; mainnet,
 real NFC and everything else in "Out of scope" below still are not.
 
@@ -96,8 +96,8 @@ Do not implement unless explicitly requested:
 - real NFC hardware
 - anti-tamper hardware
 - real NFC cryptographic verification
-- smart contracts
-- real blockchain ownership
+- smart contracts (except the v1.2.0 testnet contracts, see "Product documents")
+- real blockchain ownership on mainnet
 - Vault, liquidity floor or buyback (postponed, see above)
 - lending
 - collateral
