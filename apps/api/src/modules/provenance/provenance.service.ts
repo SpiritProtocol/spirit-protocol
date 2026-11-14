@@ -35,7 +35,7 @@ export class ProvenanceService {
   async listForArtwork(artworkId: string): Promise<ProvenanceEventDto[]> {
     const events = await this.prisma.provenanceEvent.findMany({
       where: { artworkId },
-      orderBy: { createdAt: "asc" },
+      orderBy: { seq: "asc" },
     });
 
     const userIds = new Set<string>();

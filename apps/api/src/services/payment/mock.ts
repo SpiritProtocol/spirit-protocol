@@ -1,4 +1,5 @@
 import type { PaymentConfirmation, PaymentInitiation, PaymentService } from "./types.js";
+import { mockDelay } from "../../lib/mock-delay.js";
 
 function hex(length: number): string {
   let out = "";
@@ -15,7 +16,7 @@ function hex(length: number): string {
  */
 export class MockPaymentService implements PaymentService {
   async initiatePayment(input: { amount: number; currency: string; buyerId: string }): Promise<PaymentInitiation> {
-    await delay(300 + Math.random() * 400);
+    await mockDelay(300 + Math.random() * 400);
     return {
       paymentRef: `PAY-${hex(12)}`,
       walletAddress: `UQ${hex(46)}`,
@@ -24,15 +25,11 @@ export class MockPaymentService implements PaymentService {
   }
 
   async confirmPayment(input: { paymentRef: string }): Promise<PaymentConfirmation> {
-    await delay(500 + Math.random() * 700);
+    await mockDelay(500 + Math.random() * 700);
     return {
       paymentRef: input.paymentRef,
       status: "completed",
       confirmedAt: new Date().toISOString(),
     };
   }
-}
-
-function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }

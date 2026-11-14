@@ -69,6 +69,8 @@ model User {
   avatarUrl    String?
   role         UserRole @default(COLLECTOR)
   passwordHash String?
+  /// Set once, when the starter collection is granted; guards against granting it twice.
+  starterCollectionGrantedAt DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -162,6 +164,8 @@ model ProvenanceEvent {
 
   metadata  Json?
   createdAt DateTime @default(now())
+  /// Global append order. createdAt has millisecond precision and can tie; seq never does.
+  seq       Int      @unique @default(autoincrement())
 
   @@map("provenance_events")
   @@index([artworkId, createdAt])

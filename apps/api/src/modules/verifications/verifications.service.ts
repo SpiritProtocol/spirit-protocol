@@ -19,6 +19,12 @@ export class VerificationsService {
     if (artwork.status === "VERIFIED" || artwork.status === "LISTED" || artwork.status === "SOLD") {
       throw AppError.conflict("This artwork is already verified");
     }
+    if (artwork.status === "PENDING_VERIFICATION") {
+      throw AppError.conflict("This artwork is already waiting for verification");
+    }
+    if (artwork.status === "ARCHIVED") {
+      throw AppError.conflict("Archived artworks cannot be verified");
+    }
     if (artwork.currentOwnerId !== actor.id && actor.role !== "ADMIN") {
       throw AppError.forbidden("Only the current owner or an admin can start verification");
     }

@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import { afterAll, beforeAll, beforeEach } from "vitest";
 import type { FastifyInstance } from "fastify";
 import { buildApp } from "../src/app.js";
 
@@ -67,4 +68,66 @@ export async function loginAdmin(app: FastifyInstance): Promise<string> {
 
 export function bearer(token: string): { authorization: string } {
   return { authorization: `Bearer ${token}` };
+}
+
+type Json = Record<string, unknown>;
+
+/** `app.inject` shortcut: sends JSON with an optional bearer token and returns status + parsed body. */
+export async function api(
+  app: FastifyInstance,
+  method: "GET" | "POST" | "PATCH" | "DELETE",
+  url: string,
+  token?: string,
+  payload?: Json,
+): Promise<{ status: number; body: any }> {
+  const res = await app.inject({ method, url, payload, headers: token ? bearer(token) : undefined });
+  return { status: res.statusCode, body: res.body ? res.json() : undefined };
+}
+
+/** Logs in a collector and returns the id of one of their (verified) starter artworks. Requires an admin to exist. */
+export async function collectorWithArtwork(
+  app: FastifyInstance,
+  telegramId: number,
+): Promise<{ token: string; userId: string; artworkId: string }> {
+  const { token, userId } = await loginCollector(app, { id: telegramId, username: `user${telegramId}` });
+  const collection = await api(app, "GET", "/collection", token);
+  const artwork = collection.body.artworks[0];
+  if (!artwork) throw new Error("Collector has no starter artworks; did the test create an admin?");
+  return { token, userId, artworkId: artwork.id };
+}
+
+/** Creates a DRAFT artwork owned by `ownerId` through the admin API. */
+export async function createDraftArtwork(app: FastifyInstance, adminToken: string, ownerId: string): Promise<string> {
+  const res = await api(app, "POST", "/artworks", adminToken, {
+    title: "Test Artwork",
+    artist: "Test Artist",
+    year: 2024,
+    medium: "Oil on canvas",
+    description: "Created by a test",
+    value: 1000,
+    images: ["https://example.com/a.jpg"],
+    ownerId,
+  });
+  if (res.status !== 201) throw new Error(`Artwork create failed: ${res.status} ${JSON.stringify(res.body)}`);
+  return res.body.id;
+}
+
+/**
+ * Registers the usual hooks for a test file: one app per file, an empty database and a fresh
+ * admin before each test. Read `ctx.app` / `ctx.adminToken` inside tests, not at describe time.
+ */
+export function useTestApp(): { app: FastifyInstance; adminToken: string } {
+  const ctx = {} as { app: FastifyInstance; adminToken: string };
+  beforeAll(async () => {
+    ctx.app = await createTestApp();
+  });
+  afterAll(async () => {
+    await ctx.app.close();
+  });
+  beforeEach(async () => {
+    await resetDatabase(ctx.app);
+    await createAdmin(ctx.app);
+    ctx.adminToken = await loginAdmin(ctx.app);
+  });
+  return ctx;
 }

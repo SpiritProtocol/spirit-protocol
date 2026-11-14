@@ -79,31 +79,46 @@ export class DemoService {
     return this.logOperation("RESET", actorId, datasetName);
   }
 
-  /** Gives a brand-new collector a starter collection so the demo never opens to an empty collection. No-ops for anyone who already owns an artwork. */
+  /**
+   * Gives a brand-new collector a starter collection so the demo never opens to an empty collection.
+   * Granted at most once per user: the grant is claimed atomically through `starterCollectionGrantedAt`,
+   * so concurrent logins (the Mini App can fire several) and later logins after selling everything
+   * never grant it again.
+   */
   async provisionStarterCollection(ownerId: string): Promise<void> {
-    const owned = await this.prisma.artwork.count({ where: { currentOwnerId: ownerId } });
-    if (owned > 0) return;
-
     const admin = await this.prisma.user.findFirst({ where: { role: "ADMIN" } });
     if (!admin) return;
 
-    for (const fixture of STARTER_COLLECTION_ARTWORKS) {
-      const created = await this.artworks.create(
-        {
-          title: fixture.title,
-          artist: fixture.artist,
-          year: fixture.year,
-          medium: fixture.medium,
-          description: fixture.description,
-          value: fixture.value,
-          images: fixture.images,
-          ownerId,
-        },
-        admin.id,
-      );
+    // Conditional update = atomic claim: only one concurrent caller sees count === 1.
+    const claim = await this.prisma.user.updateMany({
+      where: { id: ownerId, starterCollectionGrantedAt: null },
+      data: { starterCollectionGrantedAt: new Date() },
+    });
+    if (claim.count === 0) return;
 
-      const record = await this.verifications.start(created.id, { id: ownerId, role: "COLLECTOR" });
-      await this.verifications.approve(record.id, admin.id);
+    try {
+      for (const fixture of STARTER_COLLECTION_ARTWORKS) {
+        const created = await this.artworks.create(
+          {
+            title: fixture.title,
+            artist: fixture.artist,
+            year: fixture.year,
+            medium: fixture.medium,
+            description: fixture.description,
+            value: fixture.value,
+            images: fixture.images,
+            ownerId,
+          },
+          admin.id,
+        );
+
+        const record = await this.verifications.start(created.id, { id: ownerId, role: "COLLECTOR" });
+        await this.verifications.approve(record.id, admin.id);
+      }
+    } catch (error) {
+      // Release the claim so the next login can retry instead of leaving the collector without a grant.
+      await this.prisma.user.update({ where: { id: ownerId }, data: { starterCollectionGrantedAt: null } });
+      throw error;
     }
   }
 

@@ -1,5 +1,6 @@
 import { generateChipId } from "../../lib/ids.js";
 import type { HardwareVerificationResult, HardwareVerificationService } from "./types.js";
+import { mockDelay } from "../../lib/mock-delay.js";
 
 /**
  * Simulates a real NFC/anti-tamper chip scan (e.g. NTAG 424 DNA) with a
@@ -9,7 +10,7 @@ import type { HardwareVerificationResult, HardwareVerificationService } from "./
  */
 export class MockHardwareVerificationService implements HardwareVerificationService {
   async verify(input: { artworkId: string; spiritId: string }): Promise<HardwareVerificationResult> {
-    await delay(400 + Math.random() * 600);
+    await mockDelay(400 + Math.random() * 600);
 
     const chipId = generateChipId();
     const tamperDetected = Math.random() < 0.03;
@@ -27,8 +28,4 @@ export class MockHardwareVerificationService implements HardwareVerificationServ
       },
     };
   }
-}
-
-function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
