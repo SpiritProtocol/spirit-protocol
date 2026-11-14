@@ -1,5 +1,6 @@
 import { generateMockTxHash } from "../../lib/ids.js";
 import type { BlockchainRecord, BlockchainService } from "./types.js";
+import { mockDelay } from "../../lib/mock-delay.js";
 
 /**
  * Simulates an immutable ledger by minting a fake tx hash / block number.
@@ -22,7 +23,7 @@ export class MockBlockchainService implements BlockchainService {
   }
 
   private async mine(): Promise<BlockchainRecord> {
-    await delay(200 + Math.random() * 300);
+    await mockDelay(200 + Math.random() * 300);
     this.blockNumber += 1;
     return {
       txHash: generateMockTxHash(),
@@ -30,8 +31,4 @@ export class MockBlockchainService implements BlockchainService {
       recordedAt: new Date().toISOString(),
     };
   }
-}
-
-function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }

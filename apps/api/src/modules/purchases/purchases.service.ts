@@ -10,7 +10,9 @@ import type { ProvenanceService } from "../provenance/provenance.service.js";
  * The mock purchase flow: initiate() simulates the wallet-connect step,
  * confirm() simulates the payment-confirmation step and then atomically
  * flips listing status, artwork ownership, and artwork status back to
- * VERIFIED (unlisted, so the new owner can relist later).
+ * VERIFIED (unlisted, so the new owner can relist later). The flip only
+ * happens if the listing is still ACTIVE and the seller still owns the
+ * artwork; otherwise the transaction is CANCELLED with a 409.
  */
 export class PurchasesService {
   constructor(
@@ -72,18 +74,39 @@ export class PurchasesService {
       toOwnerId: tx.buyerId,
     });
 
-    const [completedTx] = await this.prisma.$transaction([
-      this.prisma.transaction.update({
-        where: { id: transactionId },
-        data: { status: "COMPLETED", blockchainRef: chainRecord.txHash, completedAt: new Date() },
-        include: { buyer: true, seller: true },
-      }),
-      this.prisma.listing.update({ where: { id: tx.listingId }, data: { status: "SOLD" } }),
-      this.prisma.artwork.update({
-        where: { id: tx.artworkId },
-        data: { status: "VERIFIED", currentOwnerId: tx.buyerId },
-      }),
-    ]);
+    let completedTx;
+    try {
+      completedTx = await this.prisma.$transaction(async (db) => {
+        // Re-check inside the transaction with conditional updates: between initiate() and confirm()
+        // another buyer may have bought the artwork, or the seller may have cancelled the listing.
+        const listingClaim = await db.listing.updateMany({
+          where: { id: tx.listingId, status: "ACTIVE" },
+          data: { status: "SOLD" },
+        });
+        if (listingClaim.count === 0) throw AppError.conflict("This listing is no longer available");
+
+        const ownerSwap = await db.artwork.updateMany({
+          where: { id: tx.artworkId, currentOwnerId: tx.sellerId },
+          data: { status: "VERIFIED", currentOwnerId: tx.buyerId },
+        });
+        if (ownerSwap.count === 0) throw AppError.conflict("The seller no longer owns this artwork");
+
+        return db.transaction.update({
+          where: { id: transactionId, status: "PENDING" },
+          data: { status: "COMPLETED", blockchainRef: chainRecord.txHash, completedAt: new Date() },
+          include: { buyer: true, seller: true },
+        });
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        // The sale can no longer happen; don't leave the buyer's transaction pending forever.
+        await this.prisma.transaction.updateMany({
+          where: { id: transactionId, status: "PENDING" },
+          data: { status: "CANCELLED" },
+        });
+      }
+      throw error;
+    }
 
     await this.provenance.record({
       artworkId: tx.artworkId,
